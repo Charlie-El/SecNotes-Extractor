@@ -174,7 +174,7 @@ For end users, distribute the packaged application through GitHub Releases.
 ## Project Structure
 
 ```text
-sec-notes-extractor/
+secnotesextractor/
 ├─ src/
 │  └─ ccxd_us_reports_app/
 ├─ templates/
