@@ -178,7 +178,7 @@ SEC 官方下载地址：
 ## 目录结构
 
 ```text
-sec-note-report-extractor/
+sec-notes-extractor/
 ├─ src/
 │  └─ ccxd_us_reports_app/
 ├─ templates/
