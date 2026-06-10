@@ -2,49 +2,113 @@
 
 [中文说明](README.md)
 
-This is a Windows desktop application for extracting US annual and quarterly report data from the SEC Financial Statement and Notes Data Sets and exporting standardized Excel workbooks.
-
-The tool is designed for end users. In normal use, no code changes are required. Users only need to select the note data folder, stock pool workbook, optional mapping workbook, and output folder.
-
-## Overview
+US SEC Note Annual and Quarterly Report Extractor is a Windows desktop tool designed for business users. It extracts US annual and quarterly report data from the SEC Financial Statement and Notes Data Sets and exports standardized Excel workbooks. In normal use, the tool runs on local `note` datasets and does not require code changes.
 
 The application provides two separate workflows:
 
 - `Annual Extraction`
 - `Quarterly Extraction`
 
-Both workflows always produce a source workbook. If a mapping workbook is provided, a remapped workbook is also generated. An unmatched company workbook is also exported for review.
+Both workflows always generate a source workbook and an unmatched company workbook. If a mapping workbook is provided, a remapped workbook is also generated for downstream review and delivery.
+
+## Key Features
+
+- Extract annual report data from SEC `note` datasets.
+- Extract quarterly report data from SEC `note` datasets.
+- In quarterly mode, prefer the latest quarterly filing; if the latest annual filing in `note` data has a later `filed_date`, use the annual filing instead.
+- Support separate annual and quarterly mapping workbooks.
+- Export unmatched company workbooks for review.
+- Keep local raw filing / HTML fallback hidden by default as a testing-only feature.
 
 ## Data Source
 
-Official SEC download page:
+This tool is designed for the SEC Financial Statement and Notes Data Sets.
+
+Official download page:
 
 - https://www.sec.gov/data-research/sec-markets-data/financial-statement-notes-data-sets
 
-According to the SEC official page:
+According to the SEC, these datasets provide structured text and numeric information from financial statements and their footnotes. The data is extracted from XBRL exhibits filed with the SEC. Compared with the Financial Statement Data Sets, this dataset contains significantly more disclosure detail from notes and is better suited for structured extraction, cross-company comparison, and batch analysis. The datasets are currently updated monthly.
 
-- The dataset provides text and detailed numeric information from financial statements and their notes.
-- The data is extracted from exhibits to corporate financial reports filed with the SEC using XBRL.
-- Compared with the Financial Statement Data Sets, this dataset contains significantly more disclosure detail.
-- The information is provided as filed and presented in a flattened format to make cross-company and cross-period analysis easier.
-- The datasets also include additional fields such as Standard Industrial Classification.
-- The datasets are currently updated monthly. Before November 2020, they were updated quarterly.
-- The SEC notes that these datasets are intended to assist analysis and are not a substitute for reviewing full filings.
+The application does not download SEC data automatically. Prepare the required local `note` folders before use.
 
-If you are new to this workflow, review the SEC page and its documentation before preparing your local note data folders.
+## Quick Start
 
-## Features
+If you are using the packaged Windows application, simply run the executable from the release package.
 
-- Extract annual report data from SEC note datasets
-- Extract quarterly report data from SEC note datasets
-- In quarterly mode, prefer the latest quarterly filing; if the latest annual filing in notes has a later `filed_date`, use the annual filing instead
-- Support optional mapping workbooks for both annual and quarterly workflows
-- Export unmatched company workbooks in both workflows
-- Keep local raw filing / HTML fallback hidden by default as a testing-only feature
+If you want to run from source, use:
+
+```powershell
+python -m ccxd_us_reports_app.app
+```
+
+To rebuild the desktop application locally, run:
+
+```powershell
+.\build.ps1
+```
+
+The packaged files will be generated in the local `release\` folder.
+
+## GUI Workflow
+
+1. Open the application.
+2. Choose `Annual Extraction` or `Quarterly Extraction`.
+3. Select the `note` data folder.
+4. Select the main stock pool workbook.
+5. Optionally select the extra stock pool workbook.
+6. Optionally select the mapping workbook.
+7. Select the output folder.
+8. Click `开始运行`.
+9. Review the generated files in the output folder.
+
+The GUI shows only the fields required for normal use by default. Local filing / HTML fallback fields are shown only when testing mode is enabled.
+
+## Input Guide
+
+### Quarterly Extraction
+
+- `季报 note 数据目录`
+  Main quarterly data source. The application first extracts the latest quarterly filing for a company, then compares it with the latest annual filing in `note` data and keeps the newer one by `filed_date`.
+
+- `主股票池工作簿`
+  Defines which companies will be processed.
+
+- `补充股票池工作簿`
+  Used to add companies beyond the main stock pool. Can be left empty.
+
+- `季报映射表（可选）`
+  Maps `segment_axis` to `segment_type`. The quarterly remapped workbook is generated only when this file is provided.
+
+- `输出目录`
+  Destination folder for output files.
+
+- `本地年报原件目录（测试）`
+  Hidden by default and shown only in testing mode. Used for local fallback when `note` data is insufficient.
+
+### Annual Extraction
+
+- `年报 note 数据目录`
+  Main annual data source. The application extracts the latest annual filing from this folder.
+
+- `主股票池工作簿`
+  Defines which companies will be processed.
+
+- `补充股票池工作簿`
+  Used to add companies beyond the main stock pool. Can be left empty.
+
+- `年报映射表（可选）`
+  Maps `segment_axis` to `segment_type`. The annual remapped workbook is generated only when this file is provided.
+
+- `输出目录`
+  Destination folder for output files.
+
+- `本地年报原件目录（测试）`
+  Hidden by default and shown only in testing mode. Used for local fallback testing.
 
 ## Output Files
 
-### Annual Extraction
+### Annual Mode
 
 Always generated:
 
@@ -55,9 +119,7 @@ Optional:
 
 - `美股年报提取_修改映射.xlsx`
 
-This workbook is generated only when an annual mapping workbook is provided.
-
-### Quarterly Extraction
+### Quarterly Mode
 
 Always generated:
 
@@ -68,60 +130,28 @@ Optional:
 
 - `美股季报提取_修改映射.xlsx`
 
-This workbook is generated only when a quarterly mapping workbook is provided.
-
-## GUI Field Guide
-
-### Quarterly Extraction
-
-- `季报 note 数据目录`
-  Main quarterly note data source. The application first selects the latest quarterly filing, then compares it with the latest annual filing in notes and keeps the newer one by `filed_date`.
-
-- `主股票池工作簿`
-  Main stock pool workbook that defines which companies will be processed.
-
-- `补充股票池工作簿`
-  Optional extra stock pool workbook.
-
-- `季报映射表（可选）`
-  Optional mapping workbook used to map `segment_axis` to `segment_type`.
-
-- `输出目录`
-  Folder where result files are written.
-
-- `本地年报原件目录（测试）`
-  Hidden by default. Only shown when testing mode is enabled. Used only for local fallback testing.
-
-### Annual Extraction
-
-- `年报 note 数据目录`
-  Main annual note data source.
-
-- `主股票池工作簿`
-  Main stock pool workbook that defines which companies will be processed.
-
-- `补充股票池工作簿`
-  Optional extra stock pool workbook.
-
-- `年报映射表（可选）`
-  Optional mapping workbook used to map `segment_axis` to `segment_type`.
-
-- `输出目录`
-  Folder where result files are written.
-
-- `本地年报原件目录（测试）`
-  Hidden by default. Only shown when testing mode is enabled. Used only for local fallback testing.
+The remapped workbook is generated only when a mapping workbook is provided.
 
 ## Mapping Workbooks
 
 Annual and quarterly workflows use separate mapping templates.
 
+Template files:
+
+- [templates/季报映射模板.xlsx](templates/季报映射模板.xlsx)
+- [templates/年报映射模板.xlsx](templates/年报映射模板.xlsx)
+
+The GUI can also generate templates directly:
+
+- `生成季报映射模板`
+- `生成年报映射模板`
+
 Rules:
 
-- Do not modify the first two header rows
-- The actual mapping rule is `segment_axis -> segment_type`
+- Do not modify the first two header rows.
+- The actual mapping rule is `segment_axis -> segment_type`.
 
-Required header rows:
+The required header rows are:
 
 Row 1:
 
@@ -132,44 +162,6 @@ Row 2:
 
 - `segment_axis`
 - `segment_type`
-
-Templates:
-
-- [templates/季报映射模板.xlsx](templates/季报映射模板.xlsx)
-- [templates/年报映射模板.xlsx](templates/年报映射模板.xlsx)
-
-The application can also generate templates directly from the GUI:
-
-- `生成季报映射模板`
-- `生成年报映射模板`
-
-## How to Use
-
-### Run the packaged application
-
-The packaged executable is not stored directly in the repository.
-
-For end users, distribute the packaged application through GitHub Releases.
-
-### Quarterly Workflow
-
-1. Open the application and choose `季报提取`
-2. Select the quarterly note data folder
-3. Select the main stock pool workbook
-4. Optionally select the extra stock pool workbook
-5. Optionally select the quarterly mapping workbook
-6. Select the output folder
-7. Click `开始运行`
-
-### Annual Workflow
-
-1. Open the application and choose `年报提取`
-2. Select the annual note data folder
-3. Select the main stock pool workbook
-4. Optionally select the extra stock pool workbook
-5. Optionally select the annual mapping workbook
-6. Select the output folder
-7. Click `开始运行`
 
 ## Project Structure
 
@@ -187,59 +179,21 @@ secnotesextractor/
 └─ .gitignore
 ```
 
-## GitHub Publishing Guidance
-
-Recommended to upload:
-
-- `src/`
-- `templates/`
-- `README.md`
-- `README_EN.md`
-- `build.ps1`
-- `package_release.py`
-- `.gitignore`
-
-Do not upload:
-
-- private note datasets
-- real business outputs
-- local test folders
-- temporary caches
-- intermediate build folders
-- packaged EXE folders or zip release artifacts
-
-## Rebuild
-
-To rebuild the packaged release:
-
-```powershell
-.\build.ps1
-```
-
-The script will:
-
-- remove old `build/`
-- remove old `dist/`
-- rebuild the EXE
-- recreate the local `release/` folder
-- recreate the local zip package
-
 ## Notes
 
-- The application does not download SEC data automatically
-- Users must prepare the local note datasets and stock pool workbooks
-- Annual and quarterly workflows are independent
-- Remapped workbooks are generated only when a mapping file is provided
-- Local raw filing fallback is hidden by default and should be treated as a testing feature
+- The application does not download SEC data automatically.
+- Prepare local `note` datasets and stock pool workbooks before use.
+- Annual and quarterly workflows are independent.
+- Remapped workbooks are generated only when a mapping file is provided.
+- Local raw filing fallback is hidden by default and is intended mainly for testing.
+- Output files should still be reviewed against the original filings when needed.
 
-## Public Repository Note
+## Acknowledgements
 
-This repository has been cleaned for public publishing:
+Thanks to all users who provided feedback during data preparation, template validation, and tool testing. Thanks also to open-source projects such as `pandas`, `openpyxl`, and `PyInstaller` for the foundational capabilities behind this tool.
 
-- no private business datasets
-- no real business output files
-- no local test outputs
-- no cached or intermediate build artifacts
-- no large packaged EXE artifacts tracked in Git
+## Copyright
 
-For external distribution, upload the packaged artifacts to GitHub Releases instead of committing them to the repository.
+Copyright (c) 2026 Liu Juncheng. All rights reserved.
+
+This project is intended for SEC note data extraction, structured processing, and Excel output support. Users should still review generated results independently. The output of this tool does not constitute investment, financial, legal, or audit advice.
